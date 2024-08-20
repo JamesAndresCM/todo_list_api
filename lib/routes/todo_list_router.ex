@@ -18,19 +18,22 @@ defmodule Routes.TodoListRouter do
       rescue
         _ ->
           error_message = Jason.encode!(%{error: "record not found"})
-
-          conn
-          |> put_resp_content_type("application/json")
-          |> send_resp(404, error_message)
-          |> halt()
+          resp_content_json(conn, 404, error_message)
       end
 
     conn
   end
 
+  defp resp_content_json(conn, code, message) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(code, message)
+    |> halt()
+  end
+
   get "/todo_lists" do
     todo_lists = TodoListRepository.all() |> TodoListJSON.index()
-    send_resp(conn, 200, Jason.encode!(todo_lists))
+    resp_content_json(conn, 200, Jason.encode!(todo_lists))
   end
 
   get "/todo_lists/:id" do
@@ -38,7 +41,7 @@ defmodule Routes.TodoListRouter do
     todo_list = conn.assigns[:todo_list]
 
     if todo_list do
-      send_resp(conn, 200, Jason.encode!(todo_list |> TodoListJSON.show()))
+      resp_content_json(conn, 200, Jason.encode!(todo_list |> TodoListJSON.show()))
     else
       conn
     end
@@ -49,30 +52,25 @@ defmodule Routes.TodoListRouter do
 
     case TodoListRepository.create(params) do
       {:ok, todo_list} ->
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(todo_list |> TodoListJSON.show()))
+        resp_content_json(conn, 200, Jason.encode!(todo_list |> TodoListJSON.show()))
 
       {:error, changeset} ->
         errors = ChangesetJSON.error(%{changeset: changeset})
-
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(422, Jason.encode!(errors))
+        resp_content_json(conn, 422, Jason.encode!(errors))
     end
   end
 
   delete "/todo_lists/:id" do
     case TodoListRepository.destroy(id) do
       {:ok, record} ->
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(%{message: "record #{record.id} has been destroyed!"}))
+        resp_content_json(
+          conn,
+          200,
+          Jason.encode!(%{message: "record #{record.id} has been destroyed!"})
+        )
 
       {:error, message} ->
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(%{message: message}))
+        resp_content_json(conn, 422, Jason.encode!(%{message: message}))
     end
   end
 
@@ -84,16 +82,28 @@ defmodule Routes.TodoListRouter do
     if todo_list do
       case TodoListRepository.update(todo_list, params) do
         {:ok, record} ->
-          conn
-          |> put_resp_content_type("application/json")
-          |> send_resp(200, Jason.encode!(record |> TodoListJSON.show()))
+          resp_content_json(conn, 200, Jason.encode!(record |> TodoListJSON.show()))
 
         {:error, changeset} ->
           errors = ChangesetJSON.error(%{changeset: changeset})
+          resp_content_json(conn, 422, Jason.encode!(errors))
+      end
+    else
+      conn
+    end
+  end
 
-          conn
-          |> put_resp_content_type("application/json")
-          |> send_resp(422, Jason.encode!(errors))
+  put "/todo_lists/:id/toggle" do
+    conn = set_todo_list(conn)
+    todo_list = conn.assigns[:todo_list]
+
+    if todo_list do
+      case TodoListRepository.update_status(todo_list) do
+        {:ok, todo_list} ->
+          resp_content_json(conn, 200, Jason.encode!(todo_list |> TodoListJSON.show()))
+
+        _ ->
+          resp_content_json(conn, 422, Jason.encode!(%{message: "error to change status"}))
       end
     else
       conn
