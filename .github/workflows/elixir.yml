@@ -58,7 +58,13 @@ jobs:
     - name: Compile dependencies
       run: mix deps.compile
     - name: Setup database
-      run:
+      env:
+        MIX_ENV: test
+        PGHOST: localhost
+        POSTGRES_PORT: 5432
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      run: |
         mix ecto.create
         mix ecto.migrate
     - name: Run tests
