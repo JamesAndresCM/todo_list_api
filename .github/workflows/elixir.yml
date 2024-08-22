@@ -61,8 +61,6 @@ jobs:
       run:
         mix ecto.create
         mix ecto.migrate
-        echo "Tables in database:"
-        psql -U postgres -d todo_list_test -c "\dt"
     - name: Run tests
       env:
         MIX_ENV: test
@@ -71,4 +69,5 @@ jobs:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
       run:
+        mix ecto.migrate
         mix test
