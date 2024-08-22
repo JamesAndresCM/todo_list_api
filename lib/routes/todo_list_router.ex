@@ -2,7 +2,9 @@ defmodule Routes.TodoListRouter do
   use Plug.Router
   alias Repositories.TodoListRepository
   alias Serializers.{TodoListJSON, ChangesetJSON}
+  alias Services.PaginatorService
   plug(:match)
+  @default_record 0
 
   # We want the response to be sent in json format.
   plug(Plug.Parsers, parsers: [:json], pass: ["application/json"], json_decoder: Jason)
@@ -10,7 +12,11 @@ defmodule Routes.TodoListRouter do
   plug(:dispatch)
 
   defp set_todo_list(conn) do
-    todo_list_id = conn.params["id"] |> String.to_integer()
+    todo_list_id = try do
+      conn.params["id"] |> String.to_integer()
+    rescue _ ->
+      @default_record
+    end
 
     conn =
       try do
@@ -32,7 +38,17 @@ defmodule Routes.TodoListRouter do
   end
 
   get "/todo_lists" do
-    todo_lists = TodoListRepository.all() |> TodoListJSON.index()
+    todo_lists = TodoListRepository.list_all()
+    paginator = todo_lists |> PaginatorService.new(conn.query_params)
+
+    meta_data = %{
+      page_number: paginator.page_number,
+      per_page: paginator.per_page,
+      total_pages: paginator.total_pages,
+      total_elements: paginator.total_elements
+    }
+
+    todo_lists = TodoListJSON.index(paginator.entries, meta_data)
     resp_content_json(conn, 200, Jason.encode!(todo_lists))
   end
 
@@ -108,5 +124,9 @@ defmodule Routes.TodoListRouter do
     else
       conn
     end
+  end
+
+  match _ do
+    resp_content_json(conn, 404, Jason.encode!(%{error: "Route not found"}))
   end
 end

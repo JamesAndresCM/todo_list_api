@@ -1,6 +1,6 @@
 defmodule Serializers.TodoListJSON do
-  def index(todo_lists) do
-    %{data: for(el <- todo_lists, do: data(el))}
+  def index(todo_lists, meta) do
+    %{data: for(el <- todo_lists, do: data(el)), meta: meta}
   end
 
   def show(todo_list) do
