@@ -75,5 +75,4 @@ jobs:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
       run:
-        mix ecto.migrate
         mix test
