@@ -1,8 +1,13 @@
 defmodule Repositories.TodoListRepository do
+  import Ecto.Query, warn: false
   alias TodoListDB.{Repo, TodoList}
 
   def all() do
     Repo.all(TodoList)
+  end
+
+  def list_all() do
+    from t in TodoList
   end
 
   def find_by_id!(id) do

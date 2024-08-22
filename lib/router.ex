@@ -24,6 +24,9 @@ defmodule Router do
 
   # Fallback handler when there was no match
   match _ do
-    send_resp(conn, 404, Jason.encode!(%{error: "Not Found"}))
+    conn
+    |> Plug.Conn.put_resp_header("location", "/api/v1/todo_lists")
+    |> Plug.Conn.send_resp(302, "Redirecting...")
+    |> halt()
   end
 end
