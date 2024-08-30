@@ -62,7 +62,6 @@ jobs:
       env:
         MIX_ENV: test
         PGHOST: localhost
-        DATABASE_URL: postgres://postgres:postgres@localhost:5432/todo_list_test
         POSTGRES_PORT: 5432
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
