@@ -23,6 +23,8 @@ jobs:
 
     name: Build and test
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/todo_list_test
 
     services:
       postgres:
@@ -30,7 +32,6 @@ jobs:
         ports:
           - "5432:5432"
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/todo_list_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_HOST_AUTH_METHOD: 'trust'
