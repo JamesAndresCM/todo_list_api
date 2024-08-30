@@ -1,6 +1,7 @@
 # TodoListApi
 
 ## Endpoints
+- Set database url in `.env` file
 - [postman](https://documenter.getpostman.com/view/3505861/2sA3sAfn5u)
 
 ## Installation
