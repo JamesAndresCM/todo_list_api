@@ -2,6 +2,8 @@
 
 ## Endpoints
 - Set database url in `.env` file
+- Create database and migrate `MIX_ENV=dev mix ecto.setup`
+- execute `MIX_ENV=dev mix run --no-halt`
 - [postman](https://documenter.getpostman.com/view/3505861/2sA3sAfn5u)
 
 ## Installation
