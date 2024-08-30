@@ -24,3 +24,5 @@ todo_list_api-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+.env
