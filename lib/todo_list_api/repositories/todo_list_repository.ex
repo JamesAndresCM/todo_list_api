@@ -7,7 +7,7 @@ defmodule Repositories.TodoListRepository do
   end
 
   def list_all() do
-    from t in TodoList
+    from(t in TodoList, order_by: [desc: :inserted_at])
   end
 
   def find_by_id!(id) do
