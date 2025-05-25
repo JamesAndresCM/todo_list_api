@@ -6,6 +6,9 @@
 - Create database and migrate `MIX_ENV=dev mix ecto.setup`
 - execute `MIX_ENV=dev mix run --no-halt`
 
+## Frontend
+- Move to todos directory and install dependencies & run server
+
 ## Endpoints
 - [postman](https://documenter.getpostman.com/view/3505861/2sA3sAfn5u)
 
