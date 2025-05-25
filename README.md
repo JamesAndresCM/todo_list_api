@@ -8,6 +8,8 @@
 
 ## Frontend
 - Move to todos directory and install dependencies & run server
+<img width="604" alt="Screenshot 2025-05-25 at 01 20 44" src="https://github.com/user-attachments/assets/8af4b469-f23b-44a9-ab1e-f15e90f0c221" />
+
 
 ## Endpoints
 - [postman](https://documenter.getpostman.com/view/3505861/2sA3sAfn5u)
@@ -24,6 +26,7 @@ def deps do
   ]
 end
 ```
+
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
