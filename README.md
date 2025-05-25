@@ -1,7 +1,7 @@
 # TodoListApi
 
 ## Initial Setup
-- Set database url in `.env` file
+- Set database url & frontend url in `.env` file
 - Install dependencies `mix deps.get`
 - Create database and migrate `MIX_ENV=dev mix ecto.setup`
 - execute `MIX_ENV=dev mix run --no-halt`

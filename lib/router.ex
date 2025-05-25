@@ -5,6 +5,13 @@ defmodule Router do
 
   # Attach the Logger to log incoming requests 
   plug(Plug.Logger)
+
+  plug CORSPlug,
+  origin: [System.get_env("FRONTEND_URL")],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  headers: ["Content-Type", "Authorization"],
+  max_age: 86400
+
   
   # Tell Plug to match the incoming request with the defined endpoints
   plug(:match)
