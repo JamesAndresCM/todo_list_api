@@ -7,3 +7,4 @@ export default function Pagination({ meta, setPage }: any) {
     </nav>
   );
 }
+

@@ -10,3 +10,4 @@ export default function TodoList({ lists, onEdit, onDelete, onToggle }: any) {
     </ul>
   );
 }
+

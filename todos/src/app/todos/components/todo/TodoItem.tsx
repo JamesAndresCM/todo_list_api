@@ -12,3 +12,4 @@ export default function TodoItem({ list, onEdit, onDelete, onToggle }: any) {
     </li>
   );
 }
+
