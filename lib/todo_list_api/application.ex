@@ -12,6 +12,7 @@ defmodule TodoListApi.Application do
       # Starts a worker by calling: TodoListApi.Worker.start_link(arg)
       # {TodoListApi.Worker, arg}
       TodoListDB.Repo,
+      {Phoenix.PubSub, name: TodoListApi.PubSub},
       #{Plug.Cowboy, scheme: :http, plug: Router, options: [port: Application.get_env(:todo_list_api, :port)]}
       {Plug.Cowboy, scheme: :http, plug: Router, options: [port: port()]}
     ]

@@ -37,6 +37,10 @@ defmodule Routes.TodoListRouter do
     |> halt()
   end
 
+  defp broadcast_event(event, payload) do
+    Phoenix.PubSub.broadcast(TodoListApi.PubSub, "todo_lists:lobby", {event, payload})
+  end
+
   get "/todo_lists" do
     todo_lists = TodoListRepository.list_all()
     paginator = todo_lists |> PaginatorService.new(conn.query_params)
@@ -68,6 +72,9 @@ defmodule Routes.TodoListRouter do
 
     case TodoListRepository.create(params) do
       {:ok, todo_list} ->
+        # Broadcast the new todo list to all connected clients
+        broadcast_event("todo_list_created", %{data: TodoListJSON.show(todo_list).data})
+        
         resp_content_json(conn, 200, Jason.encode!(todo_list |> TodoListJSON.show()))
 
       {:error, changeset} ->
@@ -79,6 +86,9 @@ defmodule Routes.TodoListRouter do
   delete "/todo_lists/:id" do
     case TodoListRepository.destroy(id) do
       {:ok, record} ->
+        # Broadcast the deletion to all connected clients
+        broadcast_event("todo_list_deleted", %{id: record.id})
+        
         resp_content_json(
           conn,
           200,
@@ -98,6 +108,9 @@ defmodule Routes.TodoListRouter do
     if todo_list do
       case TodoListRepository.update(todo_list, params) do
         {:ok, record} ->
+          # Broadcast the update to all connected clients
+          broadcast_event("todo_list_updated", %{data: TodoListJSON.show(record).data})
+          
           resp_content_json(conn, 200, Jason.encode!(record |> TodoListJSON.show()))
 
         {:error, changeset} ->
@@ -116,6 +129,9 @@ defmodule Routes.TodoListRouter do
     if todo_list do
       case TodoListRepository.update_status(todo_list) do
         {:ok, todo_list} ->
+          # Broadcast the status toggle to all connected clients
+          broadcast_event("todo_list_toggled", %{data: TodoListJSON.show(todo_list).data})
+          
           resp_content_json(conn, 200, Jason.encode!(todo_list |> TodoListJSON.show()))
 
         _ ->

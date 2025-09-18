@@ -27,7 +27,9 @@ defmodule TodoListApi.MixProject do
       {:jason, "~> 1.3"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
-      {:cors_plug, "~> 3.0"}
+      {:cors_plug, "~> 3.0"},
+      {:phoenix, "~> 1.7.0"},
+      {:phoenix_pubsub, "~> 2.1"}
     ]
   end
 

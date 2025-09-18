@@ -12,17 +12,30 @@ import {
   TodoList
 } from '@/app/todos/interfaces/todo';
 
-export const handleCreate = async (
-  { name, description, resetForm, setErrors }: TodoFormPayload,
-  setLists: React.Dispatch<React.SetStateAction<TodoList[]>>
-) => {
-  try {
-    const newList = await createTodoList({ name, description });
-    setLists((prev) => [newList, ...prev]);
-    resetForm();
-  } catch (err: any) {
-    if (err.validationErrors) setErrors(err.validationErrors);
-  }
+export const handleCreate = (setLists: React.Dispatch<React.SetStateAction<TodoList[]>>) => {
+  return async (data: TodoFormPayload) => {
+    try {
+      const newList = await createTodoList({ name: data.name, description: data.description });
+      
+      // Reset form after successful creation
+      data.resetForm();
+      
+      // Don't update state here - let real-time events handle it
+      // This prevents duplicates when SSE events arrive
+      console.log('Item created successfully, waiting for real-time update...');
+      
+      return newList;
+    } catch (error: any) {
+      console.error('Error creating todo list:', error);
+      
+      // Set validation errors if they exist
+      if (error.validationErrors) {
+        data.setErrors(error.validationErrors);
+      }
+      
+      throw error;
+    }
+  };
 };
 
 export const handleUpdate = async (
@@ -38,9 +51,11 @@ export const handleUpdate = async (
 ) => {
   try {
     const updated = await updateTodoList(editingId, { name, description });
-    setLists((prev) =>
-      prev.map((l) => (l.id === editingId ? updated : l))
-    );
+    
+    // Don't update state here - let real-time events handle it
+    // This prevents duplicates when SSE events arrive
+    console.log('Item updated successfully, waiting for real-time update...');
+    
     setEditingId(null);
     resetForm();
   } catch (err: any) {
@@ -55,7 +70,10 @@ export const handleDelete = async (
   if (!confirm('¿Estás seguro?')) return;
   try {
     await deleteTodoList(id);
-    setLists((prev) => prev.filter((l) => l.id !== id));
+    
+    // Don't update state here - let real-time events handle it
+    // This prevents duplicates when SSE events arrive
+    console.log('Item deleted successfully, waiting for real-time update...');
     
   } catch (err) {
     console.error(err);
@@ -68,7 +86,11 @@ export const handleToggle = async (
 ) => {
   try {
     const updated = await toggleTodoListStatus(id);
-    setLists((prev) => prev.map((l) => (l.id === id ? updated : l)));
+    
+    // Don't update state here - let real-time events handle it
+    // This prevents duplicates when SSE events arrive
+    console.log('Item toggled successfully, waiting for real-time update...');
+    
   } catch (err) {
     console.error(err);
   }

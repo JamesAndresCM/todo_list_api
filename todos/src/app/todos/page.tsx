@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { fetchTodoLists } from '../todos/api/todo';
 import { TodoList as TodoListType, Meta } from '@/app/todos/interfaces/todo/todo';
 import { TodoList, TodoForm, Pagination } from '@/app/todos/components/todo';
 import { handleCreate, handleUpdate, handleDelete, handleToggle } from '@/app/todos/handlers/todo';
 import { TodoFormPayload } from '@/app/todos/interfaces/todo';
+import { useServerSentEvents } from '@/app/todos/hooks/useServerSentEvents';
 
 
 export default function TodoPage() {
@@ -14,6 +15,31 @@ export default function TodoPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  
+  const handleRealtimeMessage = useCallback((event: string, payload: any) => {
+    console.log('Real-time event:', event, payload);
+    
+    switch (event) {
+      case 'todo_list_created':
+        setLists(prev => [payload.data, ...prev]);
+        break;
+      case 'todo_list_updated':
+        setLists(prev => prev.map(list => 
+          list.id === payload.data.id ? payload.data : list
+        ));
+        break;
+      case 'todo_list_deleted':
+        setLists(prev => prev.filter(list => list.id !== payload.id));
+        break;
+      case 'todo_list_toggled':
+        setLists(prev => prev.map(list => 
+          list.id === payload.data.id ? payload.data : list
+        ));
+        break;
+    }
+  }, []);
+
+  const { connect, disconnect, isConnected } = useServerSentEvents(handleRealtimeMessage);
 
   useEffect(() => {
     setLoading(true);
@@ -28,13 +54,24 @@ export default function TodoPage() {
       .finally(() => setLoading(false));
   }, [page]);
 
+  useEffect(() => {
+    // Connect to SSE when component mounts
+    connect();
+    
+    // Cleanup on component unmount is handled in the hook
+  }, [connect]);
+
   const handleEdit = (list: TodoListType) => {
     setEditingId(list.id);
   };
 
   return (
     <main className="p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Todo Lists</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        Todo Lists 
+        {isConnected && <span className="text-green-500 text-sm ml-2">🟢 En tiempo real</span>}
+        {!isConnected && <span className="text-red-500 text-sm ml-2">🔴 Desconectado</span>}
+      </h1>
 
       <TodoForm
         key={editingId ?? 'create'}
@@ -50,7 +87,7 @@ export default function TodoPage() {
                 },
                 setLists
               )
-            : handleCreate(payload, setLists)
+            : handleCreate(setLists)(payload)
         }
         initialData={editingId ? lists.find((l) => l.id === editingId) : null}
       />

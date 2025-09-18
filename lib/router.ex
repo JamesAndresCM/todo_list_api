@@ -7,9 +7,9 @@ defmodule Router do
   plug(Plug.Logger)
 
   plug CORSPlug,
-  origin: [System.get_env("FRONTEND_URL")],
+  origin: [System.get_env("FRONTEND_URL"), "http://localhost:3000"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  headers: ["Content-Type", "Authorization"],
+  headers: ["Content-Type", "Authorization", "Cache-Control"],
   max_age: 86400
 
   
@@ -24,6 +24,9 @@ defmodule Router do
     pass: ["application/json"],
     json_decoder: Jason
   )
+
+  # SSE events route - delegated to EventRouter
+  forward "/api/v1/events", to: Routes.EventRouter
 
   forward "/api/v1", to: Routes.TodoListRouter
   # Dispatch the connection to the matched handler
